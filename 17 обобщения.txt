@@ -1,0 +1,78 @@
+    Пример обобщений
+class Gen<T>{ //объявление обобщенного класса (T - имя параметра типа, заполнитель фактического типа)
+    T ob; //объявить объект типа Т
+    Gen(T o){ ob = o; } //передать конструктору ссылку на объект типа Т
+    T getOb(){ return ob; } //возвратить ob
+    void showType(){ //отобразить тип Т
+        System.out.println("Тип Т: " + ob.getClass().getName()); //getClass() определен в Object, потому является
+    } //членом всех типов классов. Он возвращает объект Class. В класс есть метод getName, возвращающее имя класса
+}
+class Main {
+    public static void main(String[] args) {
+        Gen<Integer> iOb; //Создать ссылку на объект Gen для целых чисел (Integer), только ссылочные типы (не int)
+        iOb = new Gen<Integer>(88); //Создать объект Gen<Integer> и присвоить iOb ссылку на него (с автоупаковкой)
+        iOb.showType();
+        int v = iOb.getOb(); //получаем значение iOb (видна автораспаковка)
+
+        Gen<String> strOb = new Gen<String>("TestObj"); //Создать ссылку и объект типа Gen<String>
+        String str = strOb.getOb();
+    }
+}
+
+
+    Пример обобщений с двумя параметрами типов
+class TwoGen<T, V>{ //объявление обобщенного класса (T, V - имя параметра типа, заполнитель фактического типа)
+    T ob; //объявить объект типа Т
+    V ob2; //объявить объект типа V
+    TwoGen(T o1, V o2){
+        ob = o1;
+        ob2 = o2;
+    } //передать конструктору ссылку на объект типа Т
+    T getOb1(){ return ob; } //возвратить ob
+    V getOb2(){ return ob2; } //возвратить ob2
+    void showTypes(){ //отобразить тип Т
+        System.out.println("Тип Т: " + ob.getClass().getName());//getClass() определен в Object, потому является
+        System.out.println("Тип V: " + ob2.getClass().getName());//членом всех типов классов.Он возвращает объект Class
+    } //В класс есть метод getName, возвращающее имя класса в типе String.
+}
+class Main {
+    public static void main(String[] args) {
+        TwoGen<Integer, String> tgObj; //Создать ссылку на объект TwoGen для Integer и String
+        tgObj = new TwoGen<Integer, String>(88, "Восемь Восемь");
+        tgObj.showTypes();
+        int v = tgObj.getOb1(); //получаем значение iOb (видна автораспаковка)
+        String str = tgObj.getOb2();
+    }
+}
+
+    Ограниченные типы:
+class NumericFns<T extends Number>{//В этом случае аргументом типа должен быть Number или подкласс Number (int,double)
+    T num;
+    NumericFns(T n) {
+        num = n;
+    }
+    double reciprocal() {
+        return 1 / num.doubleValue(); //преобразуем число в тип double благодаря этому методу, тк T ограничен
+    }
+}
+
+    class Pair<T, V extends Т> //Здесь параметр V должен иметь либо тот же тип, что и Т, либо быть подклассом Т
+
+    Аргумент с подстановочным знаком: boolean absEqual(NumericFns<? extends A> ob) (? - соответствует A и расширениям)
+
+    Можно делать обобщенные методы:static<Т extends Comparable<T>,V extends Т>boolean arraysEqual(Т[] x, V[] у){...}
+Comparable гарантирует, что этот метод будет использовать только объекты, которые могут участвовать в сравнениях
+    также можно делать обобщенные конструкторы: <T extends Number> Summation(T arg)
+    и обобщенные интерфейсы: interface Containment<T>{...}          class MyClass<T> implements Containment<T>{...}
+(Любой класс, реализующий обобщенный интерфейс, также должен быть обобщенным)
+если класс реализует специфический тип обобщенного интерфейса, тогда реализующий класс не обязан быть обобщенным
+class MyClass implements Containment<Double>
+
+    Когда никакие аргументы типов не указываются, создается низкоуровневый тип (для old code): Gen raw = new Gen(98.6)
+
+    Можно использовать var: var tgOb = new TwoGenCInteger, String>(42, "тест");
+
+    Ограничения обобщений: ob = new Т(); (компилятору ничего не известно о типе объекта). static не может быть T, но
+можно делать статические обобщающие методы. Нельзя создавать экземпляр массива, тип элементов которого является
+параметром типа, так же не разрешено создавать массив обобщенных ссылок для конкретного типа. Обобщенный класс не может
+расширять тип Throwable, что означает невозможность создания обобщенных классов исключений.

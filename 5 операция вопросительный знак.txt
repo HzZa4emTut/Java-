@@ -1,0 +1,2 @@
+int colour = 1;
+String chel = colour > 0 ? "white" : "black"; //если условие true, то будет = "white", a если false, то будет = "black"

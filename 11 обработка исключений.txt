@@ -1,0 +1,75 @@
+Все исключения в Java представлены классами, которые являются производными от класса Throwable =>
+=> для перехвата любого типа исключения, нужно "catch(Throwable exc)"
+
+int[] delimoe = {1,2,3,4,5,6,7,8};
+        int[] delitel = {1,0,3,0,5};
+        for(int i = 0; i < delimoe.length; i++) {
+            try {
+                System.out.println(delimoe[i]+" / "+delitel[i]+" = "+delimoe[i]/delitel[i]);
+            }catch(ArrayIndexOutOfBoundsException exc){//Если надо catch определенного исключения и catch Throwable
+                System.out.println("индекс вышел за границы массива");
+                // можно указать больше исключений, указывая через знак "или ('|')"
+            } catch (Throwable exc) {//тогда в последовательности catch подкласс должен быть указан первым
+                System.out.println("Произошло какое-то исключение");
+            }//иначе catch(Throwable)перехватит все исключения
+            finally{
+                System.out.println("Это сообщение выведется при любой случае из-за finally");
+            }
+        }
+
+
+public class Main{
+    public static char prompt(String str) //метод prompt не обрабатывает IOException, но используя throws,
+            throws java.io.IOException { //указывает на то, что обработать это исключение обязан вызывающий метод.
+        System.out.print(str + ": ");
+        return (char) System.in.read();
+    }
+    public static void main(String[] args) {
+        char ch;
+        try {
+            ch = prompt("Введите букву");
+        }
+        catch(java.io.IOException exc) {
+            System.out.println("Возникло исключение ввода-вывода.");
+            ch = 'X';
+        }
+        System.out.println("Вы нажали клавишу " + ch);
+    }
+}
+
+программа создания собственного исключения:
+class NonlntResultException extends Exception { //создаем собственное исключение
+    int n, d;
+    NonIntResultException(int i, int j) {
+        n = i;
+        d = j;
+    }
+    public String toString() { //сообщение при ошибке
+        return "Результат " + n + " / " + d + " не является целочисленным.";
+    }
+}
+public class Main {
+    public static void main(String args){
+        int[] numer = { 4, 8, 15, 32, 64, 127, 256, 512 };
+        int[] denom = { 2, 0, 4, 4, 0, 8 };
+        for(int i=0; i<numer.length; i++ ) {
+            try {
+                if((numer[i]%2) != 0)
+                    throw new
+                            NonlntResultException(numer[i], denom[i]); //отправляет ошибку
+                System.out.println(numer[i] + " / " + denom[i] + " равно " +
+                        numer[i]/denom[i]);
+            }
+            catch (ArithmeticException exc) {
+                System.out.println("Деление на ноль невозможно!");
+            }
+            catch (ArrayIndexOutOfBoundsException exc) {
+                System.out.println("Соответствующий элемент не найден.");
+            }
+            catch (NonlntResultException exc) {
+                System.out.println(exc); //выведется дэфолтное сообщение ошибки
+            }
+        }
+
+    }
+}

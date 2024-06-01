@@ -1,0 +1,57 @@
+Перечисление это создания своего типа данных с применением ключевого слова enum:
+enum Transport {
+    CAR, TRUCK, AIRPLANE, TRAIN, BOAT //объявление перечислений
+}
+class Main {
+    public static void main(String args[]) {
+        Transport tp; //Объявление ссылки Transport
+        tp = Transport.AIRPLANE; //Присваивание переменной tp константы AIRPLANE
+
+        System.out.println("Значение tp: " + tp); //Выведение переменной в консоль
+        System.out.println();
+
+        tp = Transport.TRAIN;
+        if (tp == Transport.TRAIN) //сравнение содержимого
+            System.out.println("tp содержит TRAIN\n");
+
+        switch (tp) { //использование в switch case
+            case CAR: //btw в case используются простые имена, а не уточненные. Например CAR, а не Transport.CAR
+                System.out.println("Автомобиль везет людей");
+                break;
+            case AIRPLANE:
+                System.out.println("Самолет летит");
+                break;
+            case TRAIN:
+                System.out.println("Поезд движется по рельсам");
+                break;
+        }
+    }
+}
+
+
+Метод values () возвращает массив, содержащий список всех констант перечисления
+а метод valueOf () — константу перечисления, значение которой равно строке str, переданной методу в виде аргумента.
+
+
+Программа реализующая конструткоры, методы, переменные экземпляра и перечисления:
+enum Transport { //Точка с запятой требуется, когда класс перечисления содержит наряду с константами и другие члены.
+    CAR(100), TRUCK(80), AIRPLANE(900), TRAIN(120), BOAT(35); //конструктор обязывает указывать скорость
+    private int speed; //переменная в перечислении
+    Transport(int s) { speed = s;} //конструктор Transport, нужен при создание констант, добавляет скорость
+    int getSpeed() {return speed;}; //метод в перечислении
+}
+class Main {
+    public static void main(String args[]) {
+        System.out.println("Скорость самолета = " + Transport.AIRPLANE.getSpeed()); //выводит скорость AIRPLANE
+
+        for(Transport t: Transport.values()){ //for в стиле for-each (в "t" будет каждая константа)
+            System.out.println("Скорость " + t + " равна " + t.getSpeed()); //выводит скорость каждой константы
+        }
+    }
+}
+
+
+сушествует метод ordinal(), показывающее позицию константы в списке констант перечисления (начинается с 0)
+Для сравнения порядковых значений двух констант одного и того же перечисления существует метод compareTo ().
+Если порядковое значение вызывающей константы меньше порядкового значения константы, то метод compareTo () возвращает
+отрицательное значение. Если же их порядковые значения совпадают, возвращается нулевое значение

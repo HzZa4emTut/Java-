@@ -1,0 +1,176 @@
+    Многопоточная система Java построена на базе класса Thread, его методов и дополняющего интерфейса Runnable.
+Для создания нового потока понадобится либо расширить класс Thread, либо реализовать интерфейс Runnable.
+В интерфейсе Runnable есть только один метод "public void run()", туда помещается код для нового потока
+После создания класса, реализующего интерфейс Runnable, внутри него создается объект "Thread(Runnable threadOb)"
+threadOb это экземпляр класса, реализующего интерфейс Runnable. Он определяет, где начнется выполнение потока.
+class MyThread implements Runnable{
+    String thrdName;
+    MyThread(String name){
+        thrdName = name;
+    }
+    public void run(){ //код при выполнение потока
+        System.out.println("Поток '" +thrdName+ "' запущен");
+        try {
+            for(int count=0; count < 10; count++) {
+                Thread.sleep(400);
+                System.out.println("В потоке " + thrdName + " значение count равно " + count);
+            }
+        } catch(InterruptedException exc) {
+            System.out.println("Поток " + thrdName + " прерван.");
+        }
+        System.out.println("Поток " + thrdName + " завершен.");
+    }
+}
+public class Main{
+    public static void main(String[] args) throws IOException {
+        System.out.println("Главный поток запущен.");
+        MyThread mt = new MyThread("blacky1"); //создается объект потока
+        Thread secondThrd = new Thread(mt); //создается поток на этом объекте
+        secondThrd.start(); //запускается поток
+        for(int i=0; i<50; i++) {
+            System.out.print(".");
+            try {
+                Thread.sleep(100);
+            }
+            catch(InterruptedException exc) {
+                System.out.println("Главный поток прерван.");
+            }
+        }
+        System.out.println("Главный поток завершен.");
+    }
+}
+можно назначить имя потока в "Thread(Runnable threadOb, String name)" и через getName() узнать имя потока
+имя потока можно установить после его создания с помощью метода setName()
+
+
+программа для реализации гибкости потока и запуска при создании:
+class MyThread implements Runnable{
+    Thread thrd; //здесь ссылка на поток и имя хранятся
+    MyThread(String name){
+        thrd = new Thread(this, name); //сконструирован поток с данным именем и "run" из этого класса
+    }
+    public static MyThread createAndStart(String name){ //создание любого потока
+        MyThread myThrd = new MyThread(name); //создается объект MyThread, где будет инициализирован Thread thrd
+        myThrd.thrd.start(); //старт этого потока, где указан run из этого класса
+        return myThrd; //возвращение ссылки на этот поток, объекту при вызове этого метода
+    }
+    public void run(){...} //код, который будет выполняться при вызове потока
+}
+public class Main{
+    public static void main(String[] args) throws IOException {
+        MyThread mt = MyThread.createAndStart("blacky#1"); //поток запустился при создании с возвращением ссылки в mt
+        ... //какой-то код здесь
+}
+фабричный метод - это метод, который возвращает объект класса например createAndStart (static и возвращаемое значение)
+
+
+    создание потока через расширение класса Thread:
+class MyThread extends Thread{
+    MyThread(String name){
+        super(name); //имя потока, которое добавляется в конструктор класса Thread "Thread(String threadName)"
+    }
+    public void run(){...} //код, который выполнится при запуске этого потока
+}
+public class Main{
+    public static void main(String[] args) throws IOException {
+        MyThread mt = new MyThread("blacky#1"); //создан поток
+        mt.start(); //т.к. MyThread теперь реализует Thread,метод start() вызывается на экземпляре MyThread
+        ... //последующий код здесь
+    }
+}
+
+
+    чтобы узнать завершился ли поток можно вызвать метод isAlive() на потоке, например:
+do { //программа выполнения главного потока, пока дочерние работают
+    System.out.print(".");
+    try {
+        Thread.sleep(100);
+    } catch(InterruptedException exc) {
+        System.out.println("Главный поток прерван.");
+    }
+} while (mtl.thrd.isAlive() || mt2.thrd.isAlive() || mt3.thrd.isAlive());
+System.out.println("Главный поток завершен.");
+}
+
+
+    также можно дождаться завершения потока через метод join(). Он ожидает завершения потока, на котором вызывается:
+System.out.println("Главный поток запущен.");
+MyThread mtl = MyThread.createAndStart("Child #1");
+MyThread mt2 = MyThread.createAndStart("Child #2");
+MyThread mt3 = MyThread.createAndStart("Child #3");
+try {
+    mtl.thrd.join();
+    System.out.println("Поток Child #1 присоединен.");
+    mt2.thrd.join();
+    System.out.println("Поток Child #2 присоединен.");
+    mt3.thrd.join();
+    System.out.println("Поток Child #3 присоединен.");
+} catch(InterruptedException exc) {
+    System.out.println("Главный поток прерван.");
+}
+System.out.println("Главный поток завершен.");
+
+
+    Изменить приоритет потока можно, вызвав метод setPriority() (член класса Thread)
+Значение level находится от MIN_PRIORITY до MAX_PRIORITY (от 1 до 10). Чтобы вернуть потоку стандартный приоритет,
+необходимо указать значение N0RM_PRI0RITY, которое равно 5. Упомянутые приоритеты определены как static final
+переменные внутри Thread. Получить текущий приоритет можно вызовом метода getPriority() класса Thread:
+
+
+    Синхронизировать доступ к методу можно с помощью ключевого слова synchronized. При вызове синхронизированного
+метода вызывающий поток входит в монитор объекта, который затем блокирует объект. Пока объект заблокирован, никакой
+другой поток не может войти в данный метод или в любой другой синхронизированный метод, определенный в классе объекта
+Когда поток возвращается из метода, монитор разблокирует объект, позволяя использовать его следующим потоком.
+    Также можно синхронизировать объекты класса с помощью synchronized(ссылка на объект класса):
+synchronized(sa) {
+    answer = sa.sumArray(a);
+}
+
+
+    Когда выполнение потока временно блокируется, он вызывает метод wait() , что приводит к переводу потока в спящий
+режим, а монитор для данного объекта освобождается, позволяя другому потоку использовать этот объект. Позже спящий
+поток пробуждается, когда другой поток входит в тот же монитор и вызывает метод notify() или notifyAll().
+final void wait() throws InterruptedException
+final void wait(long millis) throws InterruptedException
+    Поток1 работает -> вызывает wait() и входит в ожидание -> поток2 начинает работу -> поток2 вызывает notify() ->
+поток1 выходит из ожидания и продолжает работу
+    Первая форма ожидает получения уведомления. Вторая ожидает получения уведомления или истечения заданного времени
+Вызов notify ( ) возобновляет работу одного ожидающего потока. Из-за удаленной возможности ложного пробуждения нужно,
+чтобы вызовы wait() выполнялись в цикле, проверяющем условие, при котором поток переводится в режим ожидания.
+
+
+    Пауза, стоп, продолжить программа:
+class MyThread implements Runnable{
+    Thread thrd;
+    boolean suspended;
+    boolean stopped;
+    MyThread(String name){...}
+    public static MyThread createAndStart(String name){...}
+    public void run(){
+        try{
+            for(...) {
+                synchronized (this) {
+                    while (suspended) {
+                        wait();
+                    }
+                    if (stopped) break;
+                }
+            }
+        } catch (InterruptedException exc){...}
+        System.out.println("Поток " + thrd.getName() + " завершен.");
+    }
+    synchronized void mystop(){
+        stopped = true;
+        suspended = false;
+        notify();
+    }
+    synchronized void mysuspend(){
+        suspended = true;
+    }
+    synchronized void myresume(){
+        suspended = false;
+        notify();
+    }
+}
+
+Thread.currentThread() - возвращает ссылку потока в котором вызывается, можно получить ссылку на главный поток

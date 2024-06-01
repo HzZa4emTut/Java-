@@ -1,0 +1,83 @@
+abstract class Vehicle{ //абстрактный класс, не имеет своих объектов
+    Vehicle(int personNum, int fuelNum, int spending, String scndName){
+        this.PERSONNUM = personNum;
+        this.fuelNum = fuelNum;
+        this.spending = spending;
+        this.scndName = scndName;
+    }
+    Vehicle(String scndName, int personNum){
+        this.scndName = scndName;
+        this.PERSONNUM = personNum;
+    }//снизу абстрактный метод,неимеющий тела и обязан быть реализованным при наследовании если класс неабстрактный
+    abstract void showNew();//абстрактные методы могут быть созданы только в абстрактных классах
+    final void showInfo(){ //final означает, что этот метод невозможно переопределить при наследовании
+        System.out.println("scndName and personNum is "+scndName+" and "+ PERSONNUM);}
+    public String scndName;
+    private int spending;
+    private int fuelNum;
+    final private int PERSONNUM;//должно капсом,после присваивания начального значения,оно не может быть изменено
+    void setSpending(int num){spending = num;}
+    int getSpending(){return spending;}
+    void setFuelNum(int num){fuelNum = num;}
+    int getFuelNum(){return fuelNum;}
+    int getPERSONNUM(){return PERSONNUM;}
+} //void setPersonNum(int num){personNum = num;} невозможен, тк он final и не может быть изменен
+class Plane extends Vehicle{ //Plane наследуется от vehicle
+    Plane(int personNum, int fuelNum, int spending, int maxHeight, String scndName){
+        super(personNum, fuelNum, spending, scndName);  //вызов конструктора супер класса, всегда пишется вначале
+        this.maxHeight = maxHeight;
+        super.scndName = this.scndName = scndName;//scndname суперкласса будет иметь значение scndname из подкласса
+    }
+    Plane(String scndName, int personNum, int maxHeight){
+        super(scndName, personNum); //вызывается другой конструктор суперкласса
+        this.scndName = scndName;
+        this.maxHeight = maxHeight;
+    }
+    void showNew(){ //переопределенный show из класса vehicle
+        System.out.println("Max height = " + maxHeight);
+    }//также при присваивание ссылки класса vehicle на объект plane, будет работать show из plane
+    public String scndName;
+    private int maxHeight;
+    void setMaxHeight(int height){maxHeight = height;}
+    int getMaxHeight(){return maxHeight;}
+}
+final class WarPlane extends Plane{ //двойное наследование, также final запрещает наследование от этого класса
+    WarPlane(int personNum, int fuelNum, int spending, int maxHeight, String gun, String scndName){
+        super(personNum, fuelNum, spending, maxHeight, scndName);
+        this.gun = gun;
+    }
+    WarPlane(String scndName, int personNum, int maxheight,String gun){
+        super(scndName, personNum, maxheight); //будет взят конструктор ближайшего класса plane
+        this.gun = gun;
+    }
+    void showNew(){ //уже дважды переопределенный метод
+        super.showNew(); //вызывается showNew из ближайшего класса plane
+        System.out.println("Gun = "+gun);
+    }//также при присваивание ссылки класса vehicle или plane на объект warplane,будет работать showNew из warplane
+    private String gun;
+    void setGun(String gun){this.gun = gun;}
+    String getGun(){return gun;}
+}
+
+
+                                       ЗАПЕЧАТАННЫЕ КЛАССЫ:
+    Класс, который может наследоваться только определенными подклассами. Чтобы объявить запечатанный класс, необходимо
+поместить перед объявлением ключевое слово sealed, а после имени класса указать permits с разрешенными подклассами.
+public sealed class Fruit permits Apple, Pear, Grape {
+...
+}
+
+    подкласс запечатанного класса должен быть объявлен как final, sealed или non-sealed. non-sealed разблокирует
+подкласс, позволяя любому другому классу наследоваться от него:
+public non-sealed class Apple extends Fruit {
+. . .
+}
+хотя класс Apple был объявлен как non-sealed, прямыми подклассами Fruit остаются только Apple, Pear и Grape
+
+    каждый разрешенный подкласс должен быть доступным. Более того, если запечатанный класс содержится в именованном
+модуле, то каждый подкласс должен находиться в том же самом именованном модуле. В таком случае подкласс может
+располагаться не в том же пакете, что и запечатанный класс. Если запечатанный класс находится в неименованном модуле,
+тогда запечатанный класс и все разрешенные для наследования подклассы должны быть определены в одном и том же пакете.
+    Eсли подклассы имеют стандартный доступ к пакету (а не открытый доступ), то запечатанный класс и его подклассы можно
+хранить в одном файле. В таких случаях для запечатанного класса не требуется конструкция permits. В данном случае
+классы Apple, Pear и Grape неявно разрешены

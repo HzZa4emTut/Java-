@@ -1,0 +1,145 @@
+() -> 98.6 все равно что double myMethO {return 98.6; }
+() -> Math.random * 100 Это лямбда-выражение получает псевдослучайное значение от Math, random()
+(n) -> 1.0 / п Возвращает обратную величину параметра n.
+    В качестве возвращаемого типа лямбда-выражения разрешено использовать любой допустимый тип. (int, boolean, String)
+    Когда лямбда-выражение имеет только один параметр, можно не помещать имя параметра в круглые скобки, если оно
+указано в левой части лямбда-операции (n) -> (n % 2)==0, можно п -> (n % 2)==0
+
+    Лямбда-выражение не выполняется само по себе. Оно скорее формирует реализацию абстрактного метода, определенного в
+функциональном интерфейсе (в нем определен только один абстрактный метод), который указывает его целевой тип.
+    Функциональный интерфейс может включать стандартные, статические или закрытые методы, но везде он должен иметь
+только один абстрактный метод: interface MyValue { double getValue(); } (пример функционального интерфейса)
+    лямбда-выражение может быть указано только в контексте, где определен целевой тип. Например, когда лямбда-выражение
+присваивается ссылке на функциональный интерфейс, инициализацию переменных, операторы return и аргументы метода.
+MyValue myVal = () -> 98.6 (тип лямбда-выражения должны быть, таким как у abstract метода функционального интерфейса)
+При вызове данного метода через цель лямбда-выражение выполняется: System.out.println("Const = "+myVal.getValue());
+    Если абстрактный метод принимает несколько параметров:
+interface MyParamValue {double getValue(double v); }
+MyParValue myPval = (n) -> 1.0 / n; (также можно явно указать тип или даже var (var n) -> 1.0/n)
+System.out.println("Обратная величина 4 равна" + myPval.getValue(4.0));
+
+    ПРОГРАММА ДЛЯ ПРОВЕРКИ РАВЕНСТВА И НЕРАВЕНСТВА ЧИСЛА:
+interface EqualityTest {boolean testEq(int a, int b);}
+__MAIN__ {
+    EqualityTest et = (int i, int j) -> i == j; //возвратится true если i == j
+    if(et.testEq(1, 1)) {....} //сработает, тк это true
+
+    EqualityTest etN = (int i, int j) -> i!=j; //возвратится true если i != j
+    if(etN.testEq(1, 1)) {...} //код не сработает, тк false
+} //P.S. можно кнш использовать одну ссылку по желанию
+
+    БЛОЧНЫЕ ЛЯМБДА ВЫРАЖЕНИЯ:
+NumericFunc smallestNum = (n) -> { //открывается фигурная скобка с блоком кода
+    int result = 1;
+    n = n < 0 ? -n : n;
+    for(int i = 2; i <=n; i++){
+        if((n%i) == 0){
+            result = i;
+            break;
+        }
+    }
+            return result; //обязателен return
+}; //точка с запятой в конце
+
+    Также можно использовать обобщения в функциональном интерфейсе
+
+    ПЕРЕДАЧА ЛЯМБДА-ВЫРАЖЕНИЯ В КАЧЕСТВЕ АРГУМЕНТА:
+interface StringFunc {
+    String func(String str);
+}
+class Main {
+    static String changeStr(StringFunc sf, String s){ //в sf мы выбираем, какое ЛямВыр вызвать для String s
+        return sf.func(s);
+    }
+    public static void main(String[] args) {
+        String inStr = "Lambda Expression Expand Java";
+        String outStr;
+
+        StringFunc reverse = (str) -> { //создаем лямбда выражение для reverse
+            StringBuilder result = new StringBuilder();
+            for(int i = str.length()-1; i>=0; i--)
+                result.append(str.charAt(i));
+            return result.toString();
+        };
+        outStr = changeStr(reverse, inStr); //вызываем reverse для строки inStr
+    }
+}
+
+    ЗАХВАТ ПЕРЕМЕННЫХ:
+int num = 10; //переменная будет захвачена в лямбда-выражении и становится фактически финальной
+MyFunc myLambda = (n) -> {
+    int v = num + n; //если используется внешняя переменная, то она захватывается
+    //num++; будет считаться ошибкой, нельзя её изменять
+    return v;
+};
+System.out.println(myLambda.func(8));
+//num = 9; тоже будет считаться ошибкой
+
+    ИСКЛЮЧЕНИЯ В ЛЯМБДА-ВЫРАЖЕНИЯХ:
+Лямбда-выражение может генерировать исключение, но в абстрактном методе должно быть указано через throws:
+interface MylOAction {
+    boolean ioAction(Reader rdr) throws IOException; (Reader может сгенерировать исключение и оно должно быть указано)
+}
+
+    ССЫЛКИ НА СТАТИЧЕСКИЕ МЕТОДЫ: имя-класса::имя-метода (ссылка на статический метод)
+interface IntPredicate{boolean test(int n);} //интерфейс с обязательным параметром
+class MyIntPredicates{
+    static boolean isEven(int n){return n % 2 == 0;} //проверка на четность
+    static boolean isPositive(int n){return n > 0;} //проверка на положительность
+}
+class Main {
+    static boolean numTest(IntPredicate p, int v){ //первый параметр это функциональный интерфейс, тем самым
+        return p.test(v); //можно добавить ссылку на любой экземпляр данного интерфейса, включая методы
+    }
+    public static void main(String[] args) {
+        boolean result = numTest(MyIntPredicates::isEven, 7); //передается ссылка на статический метод, т.к. он
+        result = numTest(MyIntPredicates::isPositive, -1); // совместим с интерфейсом, код работает
+    }
+}
+
+    ССЫЛКИ НА МЕТОД ЭКЗЕМПЛЯРА: объектная-ссылка::имя-метода (вместо имени класса объектная ссылка)
+interface IntPredicate{boolean test(int n);} //интерфейс с обязательным параметром
+class MyIntNum{
+    private int v;
+    MyIntNum(int v){this.v = v;}
+    boolean isFactor(int n){return v%n == 0;} //проверка, является ли введеное число, делителем изначального числа
+}
+class Main {
+    public static void main(String[] args) {
+        MyIntNum myNum = new MyIntNum(12);
+        IntPredicate ip = myNum::isFactor; //создается ссылка интерфейса, теперь test будет выполнять isFactor
+        boolean result = ip.test(3); //вызываем метод через эту ссылку, проверяем является ли 3 делителем числа 12
+    }
+}
+
+    Когда надо указать метод, который можно применять с любым объектом заданного класса можно записать так:
+имя-класса : : имя-метода-экземпляра
+interface MyIntNumPredicate{boolean test(MyIntNum mv, int n);} //интерфейс с обязательным параметром
+class MyIntNum{...}
+__MAIN__
+MyIntNum myNum = new MyIntNum(12);
+MyIntNumPredicate inp = MyIntNum::isFactor; //создаем ссылку на метод через название класса, который будет
+boolean result = inp.test(myNum, 3); // работать с любым объектом указанным при вызове test
+
+    версия для обобщенных методов: SomeTest<Integer> mRef = MyClass::<Integer>myGenMeth;
+
+    В ссылке на метод можно использовать super, чтобы ссылаться на версию метода из суперкласса:
+"super::имя-метода" или "имя-типа.super : :имя-метода"
+
+    ССЫЛКИ НА КОНСТРУТКОРЫ: имя-класса::new (можно присваивать любому совместимому методу функционального интерфейса)
+interface MyFunc{
+    MyClass func(String s);
+}
+class MyClass{
+    private String str;
+    MyClass(String s){str = s;}
+    MyClass(){str = "";} //стандартный конструктор
+}
+__MAIN__
+    MyFunc myClassCons = MyClass::new; //ссылка на конструктор MyClass (не стандартный из-за совместимости)
+    MyClass mc = myClassCons.func("blacky"); //вызов ссылки на конструктор
+
+    При создании ссылки на конструктор для обобщенного класса:
+MyGenClass<T>{...}
+__MAIN__
+MyGenClass<Integer>::new; (Из-за выведения типов указывать аргумент типа нужно не всегда)

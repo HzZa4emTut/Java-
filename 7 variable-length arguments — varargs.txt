@@ -1,0 +1,15 @@
+class VarArgs {
+    static void vaTest(String msg, int a, int ... v) { //varargs всегда должен быть в конце и только один
+        System.out.println("Ваше сообщение: " + msg);
+        System.out.println("Число a = " + a);
+        System.out.println("Кол-во произвольных аргументов: " + v.length);
+        for (int i = 0; i < v.length; i++){
+            System.out.println("Аргумент " + (i+1) + " равен: "+ v[i]);
+        }
+    }
+    static void vaTest(String ... msgs){ //перегрузка vaTest varargs'ами
+        for(int i = 0; i < msgs.length; i++){
+            System.out.println((i+1) + " сообщение: " + msgs[i]);
+        } //p.s. может выйти неоднозначность, например в vaTest()
+    } //компилятор не поймет в стринговую или интовую засовывать это
+}// из-за этого надо перегружать с осторожностью

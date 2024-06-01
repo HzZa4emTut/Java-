@@ -1,0 +1,184 @@
+В современных версиях Java определены два типа потоков ввода-вывода: байтовые и символьные.
+
+Потоки байтовых данных используются с помощью двух иерархий классов. Вверху находятся два абстрактных класса:
+InputStream и OutputStream. В классе InputStream определены характеристики, общие для потоков ввода
+байтовых данных, а класс OutputStream описывает поведение потоков вывода байтовых данных.
+
+Потоки символьных данных определяются с помощью двух иерархий классов, на вершине которых находятся два абстрактных
+класса: Reader и Writer. Класс Reader используется для ввода, а класс Writer — для вывода. Конкретные классы,
+производные от Reader и Writer, оперируют на потоках символов Unicode
+
+программа, для чтения массива байтов из System.in:
+        byte[] data = new byte[10]; //максимальный размер текста, введеный в консоль (10 символов)
+        System.out.println("Введите несколько символов.");
+        System.in.read(data); введеный текст, перейдет в массив байтов
+        System.out.print("Вы ввели: "); выведение этого массива байта текстом
+        for(int i=0; i < data.length; i++)
+            System.out.print((char) data[i]);
+
+низкоуровневый метод вывод текста в консоль:
+        int b = 'x';
+        System.out.write(b);
+        System.out.write('\n'); //переход на новую строку
+
+Файл открывается для ввода за счет создания объекта FilelnputStream.
+FilelnputStream(String fileName) throws FileNotFoundException
+Для чтения из файла можно использовать метод read() .
+int read() throws IOException
+При каждом вызове метод read() читает один байт из файла и возвращает его в виде целочисленного значения. Он
+возвращает -1, когда встречается конец файла. Эта версия read() аналогична той, что применялась для чтения с консоли.
+Завершив работу с файлом, вы должны его закрыть
+void close() throws IOException
+
+Программа ввода и отображения содержимого текстового файла:
+При запуске этой программы должно быть указано имя файла, содержимое которого необходимо увидеть. Например, для
+просмотра содержимого файла по имени TEST.TXT используйте следующую командную строку: java ShowFile TEST.TXT
+        int i;
+        if (args.length != 1){
+            System.out.println("Использование: ShowFile имя-файла");
+            return;
+        } //блок try с ресурсами, для автоуправления ресурсами файл автоматические закроется при такой записи,
+        try(FilelnputStream fin = new FilelnputStream(args[0])) { //также можно использовать var при инициализации fin
+            do { //также можно использовать несколько ресурсов, через ";"
+            i = fin.read();
+            if(i != -1) System.out.print((char) i);
+            } while(i != -1);
+        } catch(IOException exc) {
+            System.out.println("Ошибка ввода-вывода: " + exc);
+            }
+
+Чтобы открыть файл для вывода, понадобится создать объект FileOutputStream. два часто используемых конструктора:
+FileOutputStream(String fileName) throws FileNotFoundException
+FileOutputStream(String fileName, boolean append) throws FileNotFoundException
+При открытии выходного файла первый конструктор удаляет любой ранее существовавший файл с таким же именем.
+Второй конструктор: если append равно true, то вывод добавляется в конец файла, а иначе файл перезаписывается.
+
+Для записи в файл можно применять метод write(), определенный в классе FileOutputStream.
+void write(int byteval) throws IOException
+Закончив работу с выходным файлом, его потребуется закрыть:
+void close() throws IOException
+
+программа для этого:
+При запуске этой программы должны быть указаны имена исходного и целевого файлов. Например, для копирования файла
+по имени FIRST.TXT в файл SECOND.TXT используйте следующую командную строку:
+java CopyFile FIRST.TXT SECOND.TXT
+
+        int i;
+        FileInputStream fin = null;
+        FileOutputStream fout = null;
+        if(args.length != 2) { // Первым делом удостовериться, что оба имени файлов были указаны,
+            System.out.println("Использование: CopyFile исходный-файл целевойфайл");
+            return;
+        }
+        try (FilelnputStream fin = new FilelnputStream(args[0]);
+        FileOutputStream fout = new FileOutputStream(args[1])) { //управление двумя ресурсами
+        do {
+        i = fin.read();
+        if(i != -1) fout.write(i);
+        } while(i != -1);
+        }
+        catch(IOException exc) {
+        System.out.println("Ошибка ввода-вывода: " + exc);
+        }
+
+Для чтения и записи двоичных значений примитивных типов Java (int, short, boolean....)
+будут использоваться классы DataInputstream и DataOutputStream. DataOutputStream(OutputStream potokKudaIdetZapis)
+
+программа записи и чтения файлов:
+int i = 10;
+double d = 1023.56;
+boolean b = true;
+// Записать ряд значений.
+try (DataOutputStream dataOut =
+new DataOutputStream(new FileOutputStream("testdata")))
+{
+System.out.println("Запись " + i);
+dataOut.writelnt(i);
+System.out.println("Запись " + d);
+dataOut.writeDouble(d);
+System.out.println("Запись " + b);
+dataOut.writeBoolean(b); -
+System.out.println("Запись " + 12.2 * 7.4);
+dataOut.writeDouble(12.2 * 7.4);
+}
+catch(IOException exc) {
+System.out.println("Ошибка при записи.");
+return;
+}
+System.out.println();
+// Прочитать ранее записанные значения,
+try (DatalnputStream dataln =
+new DatalnputStream(new FilelnputStream("testdata")))
+{
+i = dataln.readlnt();
+System.out.println("Чтение " + i);
+d = dataln.readDoubleO ;
+System.out.println("Чтение " + d);
+b = dataln.readBoolean();
+System.out.println("Чтение " + b);
+«
+*
+d = dataln.readDoubleO ;
+System.out.println("Чтение " + d);
+}
+catch(IOException exc) {
+System.out.println("Ошибка при чтении.");
+}
+
+потоки символьных данных: старый вид создания объекта BufferedReader, подключенного к клавиатуре:
+BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+но сейчас: InputStreamReader(InputStream inputStream, Charset charset)
+В charset должен использоваться набор символов, ассоциированный с консолью, который возвращается с помощью charset()
+Console con = System.console();
+if(con==null) return;
+BufferedReader br = new BufferedReader(new InputStreamReader(System.in, con.charset()));
+когда консоль обязательно будет присутствовать можно сократить вместо этого^^^, записать System.console().charset()));
+
+чтение символов:
+int read() throws IOException //для одного символа
+int read(char[] data) throws IOException //помещает символы в data, пока массив не заполнится или до конца потока
+int read(chart] data, int start, int max) throws IOException //читает входные данные в data, начиная со start до mах .
+
+программа читающая символы с консоли до тех пор, пока пользователь не введет точку:
+char c;
+BufferedReader br = new BufferedReader(new InputStreamReader(System.in, System.console().charset()));
+System.out.println("Вводите символы; для выхода введите точку.");
+do { //Читать символы
+c = (char) br.read() ;
+System.out.println(c);
+} while(c != '.');
+
+Для чтения строки с клавиатуры предназначена версия метода readLine(): "String readLine() throws IOException"
+
+В реальных программах на Java рекомендуется осуществлять вывод на консоль посредством потока PrintWriter
+PrintWriter(OutputStream outputStream, boolean flushingOn)
+Если во flushingOn указано true, то очистка автоматическая, а если false, то очистка автоматически не происходит
+Этот класс поддерживает методы print() и println().
+Если аргумент не относится к простому типу, тогда методы PrintWriter вызывают метод toString()
+чтобы сделать запись в консоль надо указать System.out: "PrintWriter pw = new PrintWriter(System.out, true);"
+
+для выполнения файлового ввода-вывода на основе символов будут использоваться классы FileReader и FileWriter.
+FileWriter(String fileName, boolean append) throws IOException (append не обязательно)
+Если append == true, тогда выходные данные добавляются в конец файла. Иначе файл перезаписывается.
+Этот класс производный от OutputStreamWriter и Writer
+
+Программа, записывающая текст с клавиатуры в файл по имени test.txt до слова stop.
+String str;
+BufferedReader br = new BufferedReader(new InputStreamReader(System.in, System.console().charset()));
+System.out.println("Вводите текст (stop для завершения).");
+try (FileWriter fw = new FileWriter("test.txt")) {
+    do {
+        System.out.print(": ")
+        str = br.readLine();
+        if(str.compareTo("stop") == 0) break;
+        str = str + "\r\n";
+        fw.write(str);
+    } while(str.compareTo("stop") != 0);
+} catch(IOException exc) {
+    System.out.println("Ошибка ввода-вывода: " + exc);
+}
+
+FileReader создает средство чтения, которое можно применять для чтения содержимого файла.
+FileReader(String fileName) throws FileNotFoundException
+
+для преобразования строчки в число можно использовать Integer.parseInt(str) для int например

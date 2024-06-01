@@ -1,0 +1,21 @@
+case 1774, 8708, 6709: //можно перечислять кейсы через запятую
+    shipBy = ShipMethod.TRUCK;
+    break;
+
+Выражение switch наделяет switch способностью выпускать значение
+ShipMethod shipBy = switch(productID) { //switch можно использовать для присваивания значений
+    case 1774, 8708, 6709:
+        yield ShipMethod.TRUCK; //yield работает как return и break;
+    case 4657, 2195, 1887, 3621:
+        yield ShipMethod.AIR;
+    default:
+        yield ShipMethod.STANDART; //default обязателен, тк это
+
+    поток выполнения после case со стрелкой не переходит к следующему оператору case (break не нужен)
+case со стрелкой это “сокращенный” способ предоставления значения (альтернатива yield)
+case 1774, 8708, 6709 -> ShipMethod.TRUCK;
+    можно вставить блок кода:
+case 1774, 8708, 6709 -> {
+    extraCharge = true;
+    yield ShipMethod.TRUCK; //В блоке кода для выдачи значения используется yield
+    }
